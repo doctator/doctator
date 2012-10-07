@@ -1,0 +1,10 @@
+{
+    "require": {
+        "slim/slim": "2.*",
+        "dflydev/markdown": "1.0.x-dev",
+        "easybook/geshi": "dev-master"
+    },
+	"autoload": {
+        "psr-0": {"Doctator": "lib/"}
+    }
+}
