@@ -46,7 +46,7 @@ class App extends \Slim\Slim {
 			$app->response()->header('Content-Type', 'application/json');
 			$results = array();
 			foreach ($comments as $comment) {
-				$results[] = json_encode($comment);
+				$results[] = $comment;
 			}
 			echo json_encode($results);
 		})->name('comments-list');
@@ -92,18 +92,9 @@ class App extends \Slim\Slim {
 		})->name('comments-post');
 
 		$app->get('/s/:key/all.js', function ($key) use ($app) {
-			$key = (integer)$key;
-			$filename = "{$app->config('resources.path')}/$key-all.js";
-			if (file_exists($filename)) {
-				$app->response()->header('Content-Type', 'application/javascript');
-				echo file_get_contents($filename);
-			} else {
-				// TODO Check api key
-				// TODO Generate bundle for api key
-
-				$app->response()->status(404);
-				echo "Not found";
-			}
+			// TODO Move to build system and compile static file
+			$app->response()->header('Content-Type', 'application/javascript');
+			$app->render('all.js');
 		})->name('js-bundle');
 	}
 }
