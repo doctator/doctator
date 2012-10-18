@@ -31,6 +31,6 @@ class AppTest extends PHPUnit_Framework_TestCase {
 		$app->call();
 		list($status, $header, $body) = $app->response()->finalize();
 		$this->assertEquals(200, $status);
-		$this->assertSelectEquals('h1', "Doctator", true, $app->response()->body());
+		$this->assertSelectEquals('h1', 'Improve your docs', true, $app->response()->body());
 	}
 }

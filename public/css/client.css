@@ -29,3 +29,16 @@
 #doctator-wrap h3 a {
 	color: #951c81;
 }
+
+#doctator-wrap form,
+#doctator-wrap .doctator-add-btn {
+	margin: 0 0 10px 0;
+}
+
+#doctator-wrap .doctator-comment {
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	margin: 0 0 10px 0;
+}

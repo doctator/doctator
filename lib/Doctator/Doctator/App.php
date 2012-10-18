@@ -46,7 +46,16 @@ class App extends \Slim\Slim {
 			$app->response()->header('Content-Type', 'application/json');
 			$results = array();
 			foreach ($comments as $comment) {
-				$results[] = $comment;
+				$results[] = array(
+					'id' => (string)$comment['_id'],
+					'owner' => $comment['owner'],
+					'subject' => $comment['subject'],
+					'version' => $comment['version'],
+					'created' => $comment['created'],
+					'parent' => $comment['parent'],
+					'author' => $comment['author'],
+					'processed' => $comment['text']['processed'],
+				);
 			}
 			echo json_encode($results);
 		})->name('comments-list');
@@ -54,30 +63,51 @@ class App extends \Slim\Slim {
 		$app->post('/c/:key/:subject(/:version)', function ($key, $subject, $version = '1.0.0') use ($app) {
 			$mongo = $app->connectDatabase();
 			$db = $mongo->doctator;
-			$collection = $db->comments;
+
+			$request = $app->request();
+			$response = $app->response();
 
 			// TODO Check API key
 
-			$text = $app->request()->post('text');
+			$collection = $db->comments;
+
+			$text = $request->post('text');
 			if ((string)$text === '') {
-				$app->response()->status(400);
+				$response->status(400);
 				echo json_encode(array(
 					'error' => array(
 						'text' => 'required'
 					)
 				));
+				return;
 			}
 
 			$markdown = new \dflydev\markdown\MarkdownParser();
 
-			$parentId = NULL;
+			if ($request->post('parent')) {
+				$parentId = new \MongoId($request->post('parent'));
+				$parent = $collection->findOne(array('_id' => $parentId));
+				if ($parent === NULL) {
+					$response->status(400);
+					echo json_encode(array(
+						'error' => array(
+							'parent' => 'invalid'
+						)
+					));
+					return;
+				}
+				$parentRef = \MongoDBRef::create('comments', $parent['_id']);
+			} else {
+				$parentRef = NULL;
+			}
 			$doc = array(
 				'owner' => $key,
 				'subject' => $subject,
 				'version' => $version,
 				'created' => strftime('%FT%T'),
-				'parent' => $parentId,
+				'parent' => $parentRef,
 				'author' => array(
+					// TODO Use submitted user information
 					'name' => 'Christopher Hlubek'
 				),
 				'text' => array(
@@ -87,8 +117,11 @@ class App extends \Slim\Slim {
 			);
 			$collection->insert($doc);
 
-			$app->response()->header('Content-Type', 'application/json');
-			echo '';
+			$response->status(201);
+			$response->header('Content-Type', 'application/json');
+			echo json_encode(array(
+				'id' => (string)$doc['_id']
+			));
 		})->name('comments-post');
 
 		$app->get('/s/:key/all.js', function ($key) use ($app) {

@@ -615,9 +615,10 @@ var Zepto = (function() {
   return $
 })()
 
+// MOD Don't set global Zepto or $ vars
 // If `$` is not yet defined, point it to `Zepto`
-window.Zepto = Zepto
-'$' in window || (window.$ = Zepto)
+// window.Zepto = Zepto
+// '$' in window || (window.$ = Zepto)
 ;(function($){
   var $$ = $.zepto.qsa, handlers = {}, _zid = 1, specialEvents={}
 
